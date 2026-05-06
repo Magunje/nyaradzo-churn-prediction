@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: ../..
+    image: nyaradzo-churn-prediction:latest
+    restart: unless-stopped
+    ports:
+      - "80:8000"
+    environment:
+      DATABASE_PATH: /data/nyaradzo_churn.db
+      AUTO_SEED_POLICYHOLDERS: "1"
+      PREFERRED_DEPLOYED_MODEL: Random Forest
+      DEFAULT_ADMIN_EMAIL: admin@nyaradzo.co.zw
+      DEFAULT_ADMIN_PASSWORD: Nyaradzo@123
+      DEFAULT_ADMIN_NAME: MAGUNJE ANALYST
+    volumes:
+      - churn-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+volumes:
+  churn-data:

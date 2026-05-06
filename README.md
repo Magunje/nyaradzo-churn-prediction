@@ -64,6 +64,10 @@ If the backend is running elsewhere, update `VITE_API_BASE_URL` in `frontend/.en
 
 The system is now deployed as a browser-based web application instead of a Windows desktop app. FastAPI serves both the API and the built React frontend from one service, so the deployed link keeps the same login, dashboard, CRUD, prediction, policy-number lookup, and PDF export behavior.
 
+### Oracle Cloud Always Free
+
+Oracle Cloud can host the full system on an Always Free Ubuntu VM with persistent VM storage. See [deploy/oracle/README.md](deploy/oracle/README.md) for the VM setup, networking rule, and one-command deployment script.
+
 ### Local production run
 
 From the project root:
