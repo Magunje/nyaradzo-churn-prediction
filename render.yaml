@@ -2,15 +2,11 @@ services:
   - type: web
     name: nyaradzo-churn-prediction
     runtime: docker
-    plan: starter
+    plan: free
     healthCheckPath: /health
-    disk:
-      name: churn-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: DATABASE_PATH
-        value: /data/nyaradzo_churn.db
+        value: /tmp/nyaradzo_churn.db
       - key: AUTO_SEED_POLICYHOLDERS
         value: "1"
       - key: PREFERRED_DEPLOYED_MODEL
