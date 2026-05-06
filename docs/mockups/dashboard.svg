@@ -1,0 +1,24 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="900" fill="#F4EEE4"/>
+  <rect x="40" y="40" width="280" height="820" rx="34" fill="#FFFFFF"/>
+  <rect x="40" y="40" width="280" height="220" rx="34" fill="#143B31"/>
+  <rect x="350" y="40" width="1050" height="110" rx="28" fill="#FFFFFF"/>
+  <rect x="350" y="180" width="250" height="150" rx="26" fill="#FFFFFF"/>
+  <rect x="620" y="180" width="250" height="150" rx="26" fill="#FFFFFF"/>
+  <rect x="890" y="180" width="250" height="150" rx="26" fill="#FFFFFF"/>
+  <rect x="1160" y="180" width="240" height="150" rx="26" fill="#FFFFFF"/>
+  <rect x="350" y="360" width="610" height="250" rx="26" fill="#FFFFFF"/>
+  <rect x="990" y="360" width="410" height="250" rx="26" fill="#FFFFFF"/>
+  <rect x="350" y="640" width="1050" height="220" rx="26" fill="#FFFFFF"/>
+  <text x="75" y="110" fill="#D8EADF" font-family="Arial" font-size="14" letter-spacing="5">NYARADZO</text>
+  <text x="75" y="160" fill="white" font-family="Georgia" font-size="34">Churn Intelligence</text>
+  <text x="390" y="110" fill="#143B31" font-family="Georgia" font-size="38">Retention command center</text>
+  <text x="385" y="235" fill="#7A786F" font-family="Arial" font-size="14" letter-spacing="4">TOTAL POLICYHOLDERS</text>
+  <text x="385" y="285" fill="#143B31" font-family="Arial" font-size="42">5,000</text>
+  <text x="655" y="235" fill="#7A786F" font-family="Arial" font-size="14" letter-spacing="4">ACTIVE POLICIES</text>
+  <text x="655" y="285" fill="#143B31" font-family="Arial" font-size="42">4,438</text>
+  <text x="925" y="235" fill="#7A786F" font-family="Arial" font-size="14" letter-spacing="4">HIGH-RISK CUSTOMERS</text>
+  <text x="925" y="285" fill="#143B31" font-family="Arial" font-size="42">717</text>
+  <text x="1195" y="235" fill="#7A786F" font-family="Arial" font-size="14" letter-spacing="4">RETENTION RATE</text>
+  <text x="1195" y="285" fill="#143B31" font-family="Arial" font-size="42">88.76%</text>
+</svg>

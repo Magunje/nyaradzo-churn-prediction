@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: nyaradzo-churn-prediction
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    disk:
+      name: churn-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_PATH
+        value: /data/nyaradzo_churn.db
+      - key: AUTO_SEED_POLICYHOLDERS
+        value: "1"
+      - key: PREFERRED_DEPLOYED_MODEL
+        value: Random Forest
+      - key: DEFAULT_ADMIN_EMAIL
+        value: admin@nyaradzo.co.zw
+      - key: DEFAULT_ADMIN_PASSWORD
+        value: Nyaradzo@123
+      - key: DEFAULT_ADMIN_NAME
+        value: MAGUNJE ANALYST

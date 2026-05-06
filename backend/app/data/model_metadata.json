@@ -1,0 +1,168 @@
+{
+  "dataset_path": "C:\\Users\\RAYDON\\OneDrive\\Im\u00e1genes\\Desktop\\MY SYSTEMS\\CHURN PREDICTION\\backend\\app\\data\\funeral_insurance_policyholder_churn_5000.csv",
+  "trained_at": "2026-04-22T16:48:20.427931+00:00",
+  "selected_model": "Logistic Regression",
+  "best_evaluated_model": "Logistic Regression",
+  "prediction_threshold": 0.55,
+  "evaluation": [
+    {
+      "model_name": "Logistic Regression",
+      "roc_auc": 0.6936,
+      "pr_auc": 0.2113,
+      "accuracy": 0.728,
+      "precision": 0.1971,
+      "recall": 0.5094,
+      "f1_score": 0.2842,
+      "optimal_threshold": 0.55,
+      "validation_threshold_metrics": {
+        "f1_score": 0.2873,
+        "precision": 0.2031,
+        "recall": 0.4906
+      }
+    },
+    {
+      "model_name": "Random Forest",
+      "roc_auc": 0.688,
+      "pr_auc": 0.2108,
+      "accuracy": 0.752,
+      "precision": 0.209,
+      "recall": 0.4811,
+      "f1_score": 0.2914,
+      "optimal_threshold": 0.18,
+      "validation_threshold_metrics": {
+        "f1_score": 0.3,
+        "precision": 0.2243,
+        "recall": 0.4528
+      }
+    },
+    {
+      "model_name": "Gradient Boosting",
+      "roc_auc": 0.6451,
+      "pr_auc": 0.2126,
+      "accuracy": 0.747,
+      "precision": 0.1674,
+      "recall": 0.3491,
+      "f1_score": 0.2263,
+      "optimal_threshold": 0.5,
+      "validation_threshold_metrics": {
+        "f1_score": 0.2526,
+        "precision": 0.1979,
+        "recall": 0.3491
+      }
+    }
+  ],
+  "feature_columns": [
+    "age",
+    "policy_age_group",
+    "gender",
+    "marital_status",
+    "employment_status",
+    "region",
+    "monthly_income_usd",
+    "dependents_count",
+    "plan_type",
+    "payment_frequency",
+    "acquisition_channel",
+    "tenure_months",
+    "monthly_premium_usd",
+    "billing_amount_usd",
+    "premium_to_income_ratio",
+    "payment_delay_days_avg",
+    "missed_payments_last_12m",
+    "late_payments_last_12m",
+    "customer_service_calls_last_6m",
+    "complaints_last_12m",
+    "policy_changes_last_12m",
+    "claims_last_24m",
+    "mobile_app_usage_score",
+    "sms_engagement_rate",
+    "retention_offer_received"
+  ],
+  "top_feature_importances": [
+    {
+      "feature": "cat__policy_age_group_60+",
+      "importance": 0.703476
+    },
+    {
+      "feature": "cat__policy_age_group_18-25",
+      "importance": 0.474371
+    },
+    {
+      "feature": "cat__marital_status_Divorced",
+      "importance": 0.35493
+    },
+    {
+      "feature": "cat__employment_status_Unemployed",
+      "importance": 0.351894
+    },
+    {
+      "feature": "cat__acquisition_channel_Mobile App",
+      "importance": 0.334804
+    },
+    {
+      "feature": "cat__plan_type_Family",
+      "importance": 0.329606
+    },
+    {
+      "feature": "num__premium_to_income_ratio",
+      "importance": 0.311403
+    },
+    {
+      "feature": "cat__policy_age_group_26-35",
+      "importance": 0.31022
+    },
+    {
+      "feature": "num__missed_payments_last_12m",
+      "importance": 0.293965
+    },
+    {
+      "feature": "num__tenure_months",
+      "importance": 0.28176
+    },
+    {
+      "feature": "num__complaints_last_12m",
+      "importance": 0.23838
+    },
+    {
+      "feature": "num__payment_delay_days_avg",
+      "importance": 0.235965
+    },
+    {
+      "feature": "num__mobile_app_usage_score",
+      "importance": 0.229855
+    },
+    {
+      "feature": "cat__employment_status_Formally Employed",
+      "importance": 0.229186
+    },
+    {
+      "feature": "cat__marital_status_Widowed",
+      "importance": 0.225874
+    },
+    {
+      "feature": "cat__region_Midlands",
+      "importance": 0.222921
+    },
+    {
+      "feature": "num__age",
+      "importance": 0.215807
+    },
+    {
+      "feature": "cat__employment_status_Self Employed",
+      "importance": 0.201231
+    },
+    {
+      "feature": "num__late_payments_last_12m",
+      "importance": 0.192089
+    },
+    {
+      "feature": "cat__employment_status_Farmer",
+      "importance": 0.188916
+    }
+  ],
+  "notes": [
+    "Gradient Boosting remains part of the model evaluation set as requested.",
+    "The selected model uses an optimized churn classification threshold derived from validation data.",
+    "Deployed model preference is set to Logistic Regression."
+  ]
+}
