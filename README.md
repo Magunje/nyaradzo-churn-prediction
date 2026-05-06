@@ -1,5 +1,7 @@
 # Nyaradzo Funeral Assurance Policyholder Churn Prediction System
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Magunje/nyaradzo-churn-prediction)
+
 Browser-based churn intelligence system built from the provided prompt, notebook, and funeral insurance dataset for Nyaradzo Funeral Assurance.
 
 ## What’s included
