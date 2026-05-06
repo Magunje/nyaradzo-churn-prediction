@@ -68,6 +68,23 @@ The system is now deployed as a browser-based web application instead of a Windo
 
 Oracle Cloud can host the full system on an Always Free Ubuntu VM with persistent VM storage. See [deploy/oracle/README.md](deploy/oracle/README.md) for the VM setup, networking rule, and one-command deployment script.
 
+### Fly.io
+
+Fly.io can host the full Dockerized web app with a 1 GB persistent volume for the SQLite database. This repository includes `fly.toml`, configured for the Johannesburg region and a public HTTPS app URL.
+
+```powershell
+fly auth login
+fly launch --copy-config --no-deploy
+fly volumes create churn_data --region jnb --size 1
+fly deploy
+```
+
+Fly app URL:
+
+```text
+https://nyaradzo-churn-prediction.fly.dev
+```
+
 ### Local production run
 
 From the project root:

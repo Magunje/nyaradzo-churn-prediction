@@ -1,0 +1,36 @@
+app = "nyaradzo-churn-prediction"
+primary_region = "jnb"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
+  DATABASE_PATH = "/data/nyaradzo_churn.db"
+  AUTO_SEED_POLICYHOLDERS = "1"
+  PREFERRED_DEPLOYED_MODEL = "Random Forest"
+  DEFAULT_ADMIN_EMAIL = "admin@nyaradzo.co.zw"
+  DEFAULT_ADMIN_PASSWORD = "Nyaradzo@123"
+  DEFAULT_ADMIN_NAME = "MAGUNJE ANALYST"
+
+[mounts]
+  source = "churn_data"
+  destination = "/data"
+  initial_size = "1gb"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 50
+    hard_limit = 80
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1
