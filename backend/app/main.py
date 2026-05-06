@@ -1,4 +1,6 @@
+import asyncio
 import json
+import logging
 import re
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -38,6 +40,8 @@ SORTABLE_COLUMNS = {
     "last_churn_probability": "last_churn_probability",
     "created_at": "created_at",
 }
+logger = logging.getLogger(__name__)
+background_tasks: set[asyncio.Task] = set()
 
 
 def model_to_dict(model, *, exclude_unset: bool = False) -> dict:
@@ -212,17 +216,37 @@ def build_dashboard_monthly_series() -> dict[str, list[dict]]:
     }
 
 
+def track_background_task(task: asyncio.Task) -> None:
+    background_tasks.add(task)
+
+    def handle_done(completed_task: asyncio.Task) -> None:
+        background_tasks.discard(completed_task)
+        try:
+            completed_task.result()
+        except asyncio.CancelledError:
+            pass
+        except Exception:
+            logger.exception("Background startup task failed.")
+
+    task.add_done_callback(handle_done)
+
+
+async def prepare_model_and_seed_data() -> None:
+    if AUTO_SEED_POLICYHOLDERS:
+        from .scripts.seed_data import seed_policyholders
+
+        await asyncio.to_thread(seed_policyholders)
+
+    await asyncio.to_thread(warm_model)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     prepare_runtime_environment()
     init_db()
     ensure_model_artifact()
-    warm_model()
     ensure_default_admin()
-    if AUTO_SEED_POLICYHOLDERS:
-        from .scripts.seed_data import seed_policyholders
-
-        seed_policyholders()
+    track_background_task(asyncio.create_task(prepare_model_and_seed_data()))
     yield
 
 
