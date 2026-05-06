@@ -141,7 +141,7 @@ export default function DashboardPage({ token }) {
   return (
     <div className="space-y-6">
       <section className="space-y-2">
-        <h1 className="font-display text-4xl text-slate-900">Dashboard Overview</h1>
+        <h1 className="font-display text-3xl text-slate-900 md:text-4xl">Dashboard Overview</h1>
         <p className="text-base text-slate-500">Welcome back, Admin. Here's your policy management summary.</p>
       </section>
 

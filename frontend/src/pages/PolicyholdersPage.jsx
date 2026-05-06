@@ -26,20 +26,20 @@ function ViewModal({ record, onClose, onDelete }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
-      <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-5 md:px-6">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Policy Holder Details</p>
-            <h3 className="mt-2 font-display text-3xl text-slate-900">{record.customerName}</h3>
+            <h3 className="mt-2 font-display text-2xl text-slate-900 md:text-3xl">{record.customerName}</h3>
             <p className="mt-1 text-sm text-slate-500">
               {record.customerId} • {record.policyNumber}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="text-sm font-semibold text-slate-500">
+          <button type="button" onClick={onClose} className="shrink-0 text-sm font-semibold text-slate-500">
             Close
           </button>
         </div>
-        <div className="grid gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 px-5 py-5 md:grid-cols-2 md:px-6 xl:grid-cols-3">
           {[
             ["Location", record.location],
             ["Age", record.ageLabel],
@@ -58,7 +58,7 @@ function ViewModal({ record, onClose, onDelete }) {
             </div>
           ))}
         </div>
-        <div className="flex flex-wrap gap-3 border-t border-slate-200 px-6 py-5">
+        <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-5 sm:flex-row sm:flex-wrap md:px-6">
           <Link to={`/policyholders/${record.id}/edit`} className="action-secondary">
             Edit Policy
           </Link>
