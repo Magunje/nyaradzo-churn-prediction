@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .auth import ensure_default_admin, get_current_user, login_user, validate_email_format
 from .config import AUTO_SEED_POLICYHOLDERS, FRONTEND_DIST_DIR, REFERENCE_DATA, prepare_runtime_environment
-from .database import execute, fetch_all, fetch_one, init_db, row_to_dict, utc_now_iso
+from .database import execute, executemany, fetch_all, fetch_one, init_db, row_to_dict, utc_now_iso
 from .schemas import (
     DashboardMetrics,
     LoginRequest,
@@ -26,7 +26,7 @@ from .schemas import (
     PredictionResponse,
     ReferenceDataResponse,
 )
-from .services.insights import derive_feature_columns, policy_number_from_policyholder_id
+from .services.insights import classify_risk, derive_feature_columns, policy_number_from_policyholder_id
 from .services.ml import ensure_model_artifact, load_metadata, predict_records, warm_model
 
 
@@ -67,6 +67,11 @@ def serialize_policyholder_row(row) -> dict:
         raise HTTPException(status_code=404, detail="Policyholder not found.")
     if not data.get("policy_number"):
         data["policy_number"] = policy_number_from_policyholder_id(data["policyholder_id"])
+    if data.get("last_churn_probability") is not None:
+        data["last_risk_band"], _ = classify_risk(
+            float(data["last_churn_probability"] or 0),
+            factors=data.get("all_considered_factors") or [],
+        )
     return data
 
 
@@ -216,6 +221,71 @@ def build_dashboard_monthly_series() -> dict[str, list[dict]]:
     }
 
 
+def refresh_cached_risk_bands() -> None:
+    rows = fetch_all(
+        """
+        SELECT id, last_churn_probability, last_all_factors_json, last_risk_band
+        FROM policyholders
+        WHERE last_churn_probability IS NOT NULL
+        """
+    )
+    updates = []
+    for row in rows:
+        factors = json.loads(row["last_all_factors_json"] or "[]")
+        risk_band, _ = classify_risk(float(row["last_churn_probability"] or 0), factors=factors)
+        if risk_band != row["last_risk_band"]:
+            updates.append([risk_band, utc_now_iso(), row["id"]])
+
+    if updates:
+        executemany(
+            """
+            UPDATE policyholders
+            SET last_risk_band = ?,
+                updated_at = ?
+            WHERE id = ?
+            """,
+            updates,
+        )
+        logger.info("Refreshed %s cached risk bands.", len(updates))
+
+
+def build_age_risk_series() -> list[dict]:
+    rows = fetch_all(
+        """
+        SELECT
+            CASE
+                WHEN age <= 25 THEN '18-25'
+                WHEN age <= 35 THEN '26-35'
+                WHEN age <= 45 THEN '36-45'
+                WHEN age <= 60 THEN '46-60'
+                ELSE '60+'
+            END AS label,
+            AVG(COALESCE(last_churn_probability, 0)) AS value,
+            COUNT(*) AS total
+        FROM policyholders
+        GROUP BY label
+        ORDER BY MIN(age)
+        """
+    )
+    return [{"label": row["label"], "value": float(row["value"] or 0), "total": int(row["total"] or 0)} for row in rows]
+
+
+def build_premium_tenure_series() -> list[dict]:
+    rows = fetch_all(
+        """
+        SELECT
+            CAST(tenure_months / 12 AS INTEGER) || 'y' AS label,
+            AVG(COALESCE(monthly_premium_usd, 0)) AS value,
+            COUNT(*) AS total
+        FROM policyholders
+        GROUP BY CAST(tenure_months / 12 AS INTEGER)
+        ORDER BY CAST(tenure_months / 12 AS INTEGER)
+        LIMIT 10
+        """
+    )
+    return [{"label": row["label"], "value": float(row["value"] or 0), "total": int(row["total"] or 0)} for row in rows]
+
+
 def track_background_task(task: asyncio.Task) -> None:
     background_tasks.add(task)
 
@@ -237,6 +307,7 @@ async def prepare_model_and_seed_data() -> None:
 
         await asyncio.to_thread(seed_policyholders)
 
+    await asyncio.to_thread(refresh_cached_risk_bands)
     await asyncio.to_thread(warm_model)
 
 
@@ -380,6 +451,24 @@ def dashboard_trends(_: dict = Depends(get_current_user)):
     return {
         "series": build_dashboard_trend_series(),
         **build_dashboard_monthly_series(),
+    }
+
+
+@app.get("/api/reports/summary")
+def reports_summary(_: dict = Depends(get_current_user)):
+    top_rows = fetch_all(
+        """
+        SELECT *
+        FROM policyholders
+        WHERE last_churn_probability IS NOT NULL
+        ORDER BY last_churn_probability DESC
+        LIMIT 10
+        """
+    )
+    return {
+        "age_series": build_age_risk_series(),
+        "premium_series": build_premium_tenure_series(),
+        "top_at_risk": [serialize_policyholder_row(row) for row in top_rows],
     }
 
 

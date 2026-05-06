@@ -77,6 +77,7 @@ export const api = {
   fetchReferenceData: (token) => request("/api/reference-data", { token }),
   fetchMetrics: (token) => request("/api/dashboard/metrics", { token }),
   fetchDashboardTrends: (token) => request("/api/dashboard/trends", { token }),
+  fetchReportsSummary: (token) => request("/api/reports/summary", { token }),
   fetchPolicyholders: (token, query) => request("/api/policyholders", { token, query }),
   fetchPolicyholder: (token, id) => request(`/api/policyholders/${id}`, { token }),
   fetchPolicyholderByPolicyNumber: (token, policyNumber) =>

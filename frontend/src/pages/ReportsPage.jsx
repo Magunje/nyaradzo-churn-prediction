@@ -7,64 +7,20 @@ import StatusBadge from "../components/StatusBadge";
 import { formatPercent } from "../utils/format";
 import { buildPolicyDisplayRecord } from "../utils/policyDisplay";
 
-function buildAgeSeries(records) {
-  const buckets = [
-    { label: "18-25", min: 18, max: 25 },
-    { label: "26-35", min: 26, max: 35 },
-    { label: "36-45", min: 36, max: 45 },
-    { label: "46-60", min: 46, max: 60 },
-    { label: "60+", min: 61, max: 120 },
-  ];
-
-  return buckets.map((bucket) => {
-    const items = records.filter((record) => record.age >= bucket.min && record.age <= bucket.max);
-    const average = items.length
-      ? items.reduce((sum, item) => sum + (item.last_churn_probability || 0), 0) / items.length
-      : 0;
-    return { label: bucket.label, value: average };
-  });
-}
-
-function buildPremiumSeries(records) {
-  const sorted = [...records]
-    .sort((left, right) => left.tenure_months - right.tenure_months)
-    .slice(0, 200);
-  const buckets = {};
-
-  sorted.forEach((record) => {
-    const label = `${Math.floor(record.tenure_months / 12)}y`;
-    if (!buckets[label]) {
-      buckets[label] = [];
-    }
-    buckets[label].push(record.monthly_premium_usd);
-  });
-
-  return Object.entries(buckets)
-    .slice(0, 10)
-    .map(([label, values]) => ({
-      label,
-      value: values.reduce((sum, value) => sum + value, 0) / values.length,
-    }));
-}
-
 export default function ReportsPage({ token }) {
   const [metrics, setMetrics] = useState(null);
-  const [records, setRecords] = useState(null);
+  const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    Promise.all([
-      api.fetchMetrics(token),
-      api.fetchPolicyholders(token, {
-        page: 1,
-        page_size: 5000,
-        sort_by: "last_churn_probability",
-        sort_dir: "desc",
-      }),
-    ])
-      .then(([metricsResponse, recordsResponse]) => {
+    Promise.all([api.fetchMetrics(token), api.fetchReportsSummary(token)])
+      .then(([metricsResponse, summaryResponse]) => {
         setMetrics(metricsResponse);
-        setRecords(recordsResponse.items.map(buildPolicyDisplayRecord));
+        setSummary({
+          ageSeries: summaryResponse.age_series || [],
+          premiumSeries: summaryResponse.premium_series || [],
+          records: (summaryResponse.top_at_risk || []).map(buildPolicyDisplayRecord),
+        });
       })
       .catch((requestError) => setError(requestError.message));
   }, [token]);
@@ -73,12 +29,9 @@ export default function ReportsPage({ token }) {
     return <div className="table-card p-6 text-sm text-rose-700">{error}</div>;
   }
 
-  if (!metrics || !records) {
+  if (!metrics || !summary) {
     return <LoadingState label="Loading reports..." />;
   }
-
-  const ageSeries = buildAgeSeries(records);
-  const premiumSeries = buildPremiumSeries(records);
 
   return (
     <div className="space-y-4">
@@ -105,14 +58,14 @@ export default function ReportsPage({ token }) {
         <LineChartCard
           title="Risk Curve"
           subtitle="Average churn probability by age group"
-          data={ageSeries}
+          data={summary.ageSeries}
           color="#C2410C"
           valueFormatter={(value) => `${Math.round(value * 100)}%`}
         />
         <LineChartCard
           title="Premium Curve"
           subtitle="Average monthly premium by tenure year"
-          data={premiumSeries}
+          data={summary.premiumSeries}
           color="#0F766E"
           valueFormatter={(value) => `$${Math.round(value)}`}
         />
@@ -137,7 +90,7 @@ export default function ReportsPage({ token }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-600">
-              {records.slice(0, 10).map((record) => (
+              {summary.records.map((record) => (
                 <tr key={record.id}>
                   <td className="py-4">
                     <div className="font-semibold text-slate-900">{record.customerName}</div>

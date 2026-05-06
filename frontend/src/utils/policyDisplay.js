@@ -28,7 +28,7 @@ const LAST_NAMES = [
   "Marufu",
 ];
 
-const LOCATION_MAP = {
+export const LOCATION_MAP = {
   Harare: "Harare",
   Bulawayo: "Bulawayo",
   Manicaland: "Mutare",
@@ -39,6 +39,12 @@ const LOCATION_MAP = {
   "Matabeleland South": "Gwanda",
   Midlands: "Gweru",
 };
+
+export const LOCATION_OPTIONS = Object.values(LOCATION_MAP);
+
+export function regionFromLocation(location) {
+  return Object.entries(LOCATION_MAP).find(([, displayLocation]) => displayLocation === location)?.[0] || location;
+}
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("en-US", {

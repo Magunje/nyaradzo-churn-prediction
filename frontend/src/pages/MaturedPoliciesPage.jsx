@@ -11,7 +11,7 @@ export default function MaturedPoliciesPage({ token }) {
   useEffect(() => {
     api.fetchPolicyholders(token, {
       page: 1,
-      page_size: 5000,
+      page_size: 20,
       sort_by: "tenure_months",
       sort_dir: "desc",
     })

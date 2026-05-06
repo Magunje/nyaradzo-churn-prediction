@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import LoadingState from "../components/LoadingState";
 import PageHeader from "../components/PageHeader";
-import { buildPolicyDisplayRecord, filterPolicyDisplayRecords } from "../utils/policyDisplay";
+import { LOCATION_OPTIONS, buildPolicyDisplayRecord, regionFromLocation } from "../utils/policyDisplay";
 
 function Satisfaction({ score, stars }) {
   return (
@@ -80,21 +80,28 @@ function ViewModal({ record, onClose, onDelete }) {
 
 export default function PolicyholdersPage({ token }) {
   const [records, setRecords] = useState(null);
+  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [page, setPage] = useState(1);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [error, setError] = useState("");
 
-  const loadRecords = async () => {
+  const pageSize = 10;
+
+  const loadRecords = async ({ nextPage = page } = {}) => {
     try {
+      setError("");
       const response = await api.fetchPolicyholders(token, {
-        page: 1,
-        page_size: 5000,
+        page: nextPage,
+        page_size: pageSize,
+        search,
+        region: location ? regionFromLocation(location) : "",
         sort_by: "created_at",
         sort_dir: "desc",
       });
       setRecords(response.items.map(buildPolicyDisplayRecord));
+      setTotal(response.total);
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -102,7 +109,7 @@ export default function PolicyholdersPage({ token }) {
 
   useEffect(() => {
     loadRecords();
-  }, [token]);
+  }, [token, page, search, location]);
 
   if (error) {
     return <div className="table-card p-6 text-sm text-rose-700">{error}</div>;
@@ -112,12 +119,10 @@ export default function PolicyholdersPage({ token }) {
     return <LoadingState label="Loading policy holders..." />;
   }
 
-  const filteredRecords = filterPolicyDisplayRecords(records, { search, location });
-  const pageSize = 10;
-  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / pageSize));
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(page, totalPages);
-  const pageItems = filteredRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const locations = ["", ...new Set(records.map((record) => record.location))];
+  const pageItems = records;
+  const locations = ["", ...LOCATION_OPTIONS];
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this policyholder record?")) {
@@ -126,7 +131,7 @@ export default function PolicyholdersPage({ token }) {
     try {
       await api.deletePolicyholder(token, id);
       setSelectedRecord(null);
-      await loadRecords();
+      await loadRecords({ nextPage: currentPage });
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -136,7 +141,7 @@ export default function PolicyholdersPage({ token }) {
     <div className="space-y-4">
       <PageHeader
         title="Policy Holders"
-        description={`${filteredRecords.length} policy holders found`}
+        description={`${total.toLocaleString()} policy holders found`}
         action={
           <Link to="/register-policy" className="action-primary">
             <Plus size={16} />
@@ -227,7 +232,7 @@ export default function PolicyholdersPage({ token }) {
 
         <div className="flex flex-col gap-4 border-t border-slate-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-slate-500">
-            Showing {pageItems.length} of {filteredRecords.length.toLocaleString()} policy holders
+            Showing {pageItems.length} of {total.toLocaleString()} policy holders
           </p>
           <div className="flex items-center gap-2">
             <button

@@ -56,12 +56,9 @@ def derive_feature_columns(payload: dict) -> dict:
 
 
 def classify_risk(probability: float, threshold: float | None = None, factors: list[dict] | None = None) -> tuple[str, str]:
-    medium_threshold = float(threshold or MEDIUM_RISK_THRESHOLD)
-    high_threshold = min(0.9, max(HIGH_RISK_THRESHOLD, medium_threshold + 0.12, medium_threshold * 1.75))
-
-    if probability >= high_threshold:
+    if probability >= HIGH_RISK_THRESHOLD:
         risk_band = "High"
-    elif probability >= medium_threshold:
+    elif probability >= MEDIUM_RISK_THRESHOLD:
         risk_band = "Medium"
     else:
         risk_band = "Low"
@@ -70,10 +67,10 @@ def classify_risk(probability: float, threshold: float | None = None, factors: l
     high_count = sum(1 for factor in triggered_factors if factor.get("impact") == "High")
     medium_count = sum(1 for factor in triggered_factors if factor.get("impact") == "Medium")
 
-    if probability >= medium_threshold:
-        if high_count >= 3:
+    if risk_band != "High":
+        if probability >= MEDIUM_RISK_THRESHOLD and high_count >= 3:
             risk_band = "High"
-        elif high_count >= 1 or medium_count >= 2:
+        elif risk_band == "Low" and (high_count >= 1 or medium_count >= 2):
             risk_band = "Medium"
 
     color_map = {
